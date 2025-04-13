@@ -1,0 +1,42 @@
+server:
+  port: 18080
+  servlet:
+    context-path: /
+spring:
+  application:
+    name: springboot-template-jwt-api
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://xxx:5432/template
+    username: xxx
+    password: xxx
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  profiles:
+    active: knife4j,satoken
+  web:
+    verify:
+      mail-limit: 60
+    flow:
+      limit: 50
+      period: 3
+      block: 30
+    cors:
+      origin: '*'
+      credentials: false
+      methods: '*'
+
+
+# jimmer配置参考https://babyfish-ct.github.io/jimmer-doc/zh/docs/spring/appendix
+jimmer:
+  # Kotlin项目必须配置 默认java
+  language: kotlin
+  # Jimmer方言类名
+  dialect: org.babyfish.jimmer.sql.dialect.PostgresDialect
+  # 是否打印SQL日志 默认false
+  show-sql: true
+  # 是否格式化SQL日志 默认false
+  pretty-sql: true
+  # 如果非NONE，验证数据库结构和代码实体类型结构的一致性，如果不一致，WARNING导致日志告警，ERROR导致报错
+  database-validation-mode: ERROR
