@@ -44,7 +44,7 @@ class ResponseAdvisor(
       response.headers.contentType = MediaType.APPLICATION_JSON
       return objectMapper.writeValueAsString(RespBean.success(body))
     }
-    
+
     if (body == null) {
       return RespBean.success<Any>(null)
     }

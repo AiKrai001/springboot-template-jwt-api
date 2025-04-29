@@ -12,11 +12,8 @@ import org.springframework.stereotype.Service
 @Service
 class UserServiceImpl(
   private val userRepository: UserRepository
-): UserService {
+) : UserService {
   override fun signIn(username: String, password: String): String {
-//    withContext(Dispatchers.IO) {
-//
-//    }
     val user = userRepository.findByUserName(username) ?: throw Exception("User not found")
     if (user.password != SecureUtil.sha1(password)) {
       throw Exception("Invalid password")
@@ -25,7 +22,7 @@ class UserServiceImpl(
       .setExtraData(mapOf("deptId" to user.deptId))
     StpUtil.login(user.userId.toString(), parameter)
     val token = StpUtil.getTokenInfo()
-    return token.tokenValue;
+    return token.tokenValue
   }
 
   override fun list(

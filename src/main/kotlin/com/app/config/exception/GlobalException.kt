@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 class GlobalException(
   private val exceptionAdviceHandel: ExceptionAdviceHandel
 ) {
-  
+
   // 所有未明确处理的异常将通过exceptionAdviceHandel统一处理
   @ExceptionHandler(Throwable::class)
   fun handleAllExceptions(req: HttpServletRequest, error: Throwable): RespBean<*> {

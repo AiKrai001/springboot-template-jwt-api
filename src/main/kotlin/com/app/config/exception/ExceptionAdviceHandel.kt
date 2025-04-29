@@ -1,6 +1,5 @@
 package com.app.config.exception
 
-
 import com.app.data.RespBean
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
@@ -35,23 +34,23 @@ class ExceptionAdviceHandel {
    */
   private fun throwableAdvice(error: Throwable): RespBean<Void> {
     logger.error("系统发生未处理异常", error)
-    
+
     // 获取详细错误信息
     val printStackTrace = ByteArrayOutputStream()
     error.printStackTrace(PrintStream(printStackTrace))
-    
+
     // 查找第一个应用包下的堆栈信息，用于定位错误
-    val stackElement = error.stackTrace.firstOrNull { 
-      it.className.startsWith("com.app") 
+    val stackElement = error.stackTrace.firstOrNull {
+      it.className.startsWith("com.app")
     }
-    
+
     // 格式化错误信息
     val errorMsg = if (stackElement != null) {
       "系统异常: ${error.message ?: "Unknown error"} (位置: ${stackElement.className}:${stackElement.lineNumber})"
     } else {
       "系统异常: ${error.message ?: "Unknown error"}"
     }
-    
+
     return RespBean.failure(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorMsg)
   }
 

@@ -1,6 +1,7 @@
 plugins {
   kotlin("jvm") version "1.9.25"
   kotlin("plugin.spring") version "1.9.25"
+  id("com.diffplug.spotless") version "6.25.0"
   id("org.springframework.boot") version "3.4.4"
   id("io.spring.dependency-management") version "1.1.7"
   id("com.google.devtools.ksp") version "1.9.25-1.0.20"
@@ -26,6 +27,21 @@ repositories {
 kotlin {
   compilerOptions {
     freeCompilerArgs.addAll("-Xjsr305=strict")
+  }
+}
+
+spotless {
+  kotlin {
+    ktlint()
+      .editorConfigOverride(
+        mapOf(
+          "ktlint_standard_no-wildcard-imports" to "disabled",
+          "ktlint_standard_trailing-comma-on-call-site" to "disabled",
+          "ktlint_standard_trailing-comma-on-declaration-site" to "disabled",
+          "indent_size" to "2"
+        )
+      )
+    target("src/**/*.kt")
   }
 }
 

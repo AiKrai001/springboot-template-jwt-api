@@ -56,8 +56,11 @@ class RequestLogFilter(
   fun logRequestEnd(wrapper: ContentCachingResponseWrapper, startTime: Long) {
     val time = System.currentTimeMillis() - startTime
     val status = wrapper.status
-    val content = if (status != 200) "$status 错误"
-    else String(wrapper.contentAsByteArray)
+    val content = if (status != 200) {
+      "$status 错误"
+    } else {
+      String(wrapper.contentAsByteArray)
+    }
 
     log.info("\n>>>>>请求处理耗时:[{}ms] 响应结果:{}", time, content)
   }
@@ -79,25 +82,29 @@ class RequestLogFilter(
 
     if (StpUtil.isLogin()) {
       val id = StpUtil.getLoginId()
-      log.info("""
+      log.info(
+        """
         
-                >>>>>请求ID:[${reqId}]
+                >>>>>请求ID:[$reqId]
                 >>>>>请求URL:["${request.servletPath}"](${request.method}) 
                 >>>>>远程IP:[${request.remoteAddr}] 
                 >>>>>用户名:[username] 
                 >>>>>用户ID:$id 
                 >>>>>角色:${StpUtil.getRoleList()} 
                 >>>>>请求参数列表: [$params]
-                """.trimIndent())
+        """.trimIndent()
+      )
     } else {
-      log.info("""
+      log.info(
+        """
         
-                >>>>>请求ID:[${reqId}]
+                >>>>>请求ID:[$reqId]
                 >>>>>请求URL:["${request.servletPath}"](${request.method}) 
                 >>>>>远程IP地址:[${request.remoteAddr}] 
                 >>>>>身份:未验证 
                 >>>>>请求参数列表: [$params]
-                """.trimIndent())
+        """.trimIndent()
+      )
     }
   }
 

@@ -1,4 +1,4 @@
-package com.app.controller;
+package com.app.controller
 
 import cn.dev33.satoken.stp.StpUtil
 import com.app.data.dto.SignInRequest

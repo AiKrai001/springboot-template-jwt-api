@@ -26,6 +26,7 @@ class SwaggerConfig {
       }
     }
   }
+
   @Bean
   fun customOpenAPI(): OpenAPI {
     return OpenAPI()
@@ -57,5 +58,4 @@ class SwaggerConfig {
 //      .packagesToScan("com.csrs.web.controller.ai")
 //      .build()
 //  }
-
 }

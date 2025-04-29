@@ -1,6 +1,5 @@
 package com.app.config.satoken
 
-
 import cn.dev33.satoken.context.SaHolder
 import cn.dev33.satoken.filter.SaServletFilter
 import cn.dev33.satoken.interceptor.SaInterceptor

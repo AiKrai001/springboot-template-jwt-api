@@ -8,7 +8,6 @@ import org.babyfish.jimmer.spring.repository.KRepository
 import org.babyfish.jimmer.sql.kt.ast.expression.eq
 import org.babyfish.jimmer.sql.kt.ast.expression.`eq?`
 
-
 interface UserRepository : KRepository<User, Long> {
   fun findUser(
     pageIndex: Int = 0,
