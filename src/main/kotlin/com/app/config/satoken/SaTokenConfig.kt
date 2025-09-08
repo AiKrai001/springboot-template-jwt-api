@@ -16,7 +16,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
  * @author click33
  */
 @Configuration
-class SaTokenConfigure : WebMvcConfigurer {
+class SaTokenConfig : WebMvcConfigurer {
+
+  companion object {
+    val excludePath = listOf(
+      // 静态资源，可匿名访问
+      "/*.html",
+      "/**/*.html",
+      "/**/*.css",
+      "/**/*.js",
+      "/profile/**",
+
+      // API 文档相关
+      "/doc.html/**",
+      "/swagger-ui.html",
+      "/swagger-resources/**",
+      "/webjars/**",
+      "/*/api-docs",
+    )
+  }
 
   /**
    * 注册 Sa-Token 拦截器打开注解鉴权功能
@@ -25,23 +43,7 @@ class SaTokenConfigure : WebMvcConfigurer {
     // 注册 Sa-Token 拦截器打开注解鉴权功能
     registry.addInterceptor(SaInterceptor())
       .addPathPatterns("/**")
-      .excludePathPatterns(
-        "/api/auth/login",
-        "/api/auth/register",
-        "/api/sms",
-        "/api/mobLogin",
-        "/swagger/**",
-        "/swagger-ui.html",
-        "/swagger-resources/**",
-        "/doc.html",
-        "/v2/**",
-        "/v3/**",
-        "/v2/api-docs/**",
-        "/v2/api-docs-ext/**",
-        "/v3/api-docs/**",
-        "/favicon.ico",
-        "/error"
-      )
+      .excludePathPatterns(excludePath)
   }
 
   /**
@@ -59,7 +61,7 @@ class SaTokenConfigure : WebMvcConfigurer {
   fun getSaServletFilter(): SaServletFilter {
     return SaServletFilter()
       // 指定 [拦截路由] 与 [放行路由]
-      .addInclude("/**") // .addExclude("/favicon.ico")
+      .addInclude("/**").addExclude("/favicon.ico")
       // 认证函数: 每次请求执行
       .setAuth {
         // println("---------- sa全局认证 ${SaHolder.getRequest().requestPath}")

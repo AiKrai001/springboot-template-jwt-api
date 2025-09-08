@@ -3,12 +3,14 @@ package com.app.filter
 import cn.dev33.satoken.stp.StpUtil
 import cn.hutool.core.lang.Snowflake
 import cn.hutool.json.JSONObject
+import com.app.config.satoken.SaTokenConfig
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.MDC
 import org.springframework.stereotype.Component
+import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingResponseWrapper
 
@@ -18,7 +20,8 @@ class RequestLogFilter(
   private val snowflake: Snowflake
 ) : OncePerRequestFilter() {
 
-  private val ignores = setOf("/chatjava", "/ai", "/doc.html", "/swagger-ui", "/v3/api-docs")
+  private val ignores = SaTokenConfig.excludePath
+  private val pathMatcher = AntPathMatcher()
 
   override fun doFilterInternal(
     request: HttpServletRequest,
@@ -40,11 +43,13 @@ class RequestLogFilter(
   /**
    * 判定当前请求url是否不需要日志打印
    *
-   * @param url 路径
-   * @return 是否忽略
+   * @param url 请求路径
+   * @return 是否需要忽略
    */
   private fun isIgnoreUrl(url: String): Boolean {
-    return ignores.any { url.startsWith(it) }
+    return ignores.any { pattern ->
+      pathMatcher.match(pattern, url)
+    }
   }
 
   /**

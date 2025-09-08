@@ -1,6 +1,6 @@
 package com.app.data
 
-import cn.hutool.json.JSONUtil
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.MDC
 import java.util.*
 
@@ -16,9 +16,11 @@ data class RespBean<T>(
   val id: Long,
   val code: Int,
   val data: T?,
-  val message: String
+  val message: String?
 ) {
   companion object {
+    private val objectMapper = ObjectMapper()
+
     fun <T> success(data: T?): RespBean<T> {
       return RespBean(requestId(), 200, data, "请求成功")
     }
@@ -35,7 +37,11 @@ data class RespBean<T>(
       return failure(401, message)
     }
 
-    fun <T> failure(code: Int, message: String): RespBean<T> {
+    fun <T> failure(message: String?): RespBean<T> {
+      return RespBean(requestId(), 500, null, message)
+    }
+
+    fun <T> failure(code: Int, message: String?): RespBean<T> {
       return RespBean(requestId(), code, null, message)
     }
 
@@ -54,7 +60,6 @@ data class RespBean<T>(
    * @return JSON字符串
    */
   fun asJsonString(): String {
-    return JSONUtil.toJsonStr(this)
-//    return JSONObject.toJSONString(this, JSONWriter.Feature.WriteNulls)
+    return objectMapper.writeValueAsString(this)
   }
 }
