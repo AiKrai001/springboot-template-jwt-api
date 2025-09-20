@@ -3,6 +3,7 @@ package com.app.service.impl
 import cn.dev33.satoken.stp.StpUtil
 import cn.dev33.satoken.stp.parameter.SaLoginParameter
 import cn.hutool.crypto.SecureUtil
+import com.app.config.exception.ServiceException
 import com.app.data.model.User
 import com.app.repository.UserRepository
 import com.app.service.UserService
@@ -16,7 +17,7 @@ class UserServiceImpl(
   override fun signIn(username: String, password: String): String {
     val user = userRepository.findByUserName(username) ?: throw Exception("User not found")
     if (user.password != SecureUtil.sha1(password)) {
-      throw Exception("Invalid password")
+      throw ServiceException("Invalid password")
     }
     val parameter = SaLoginParameter.create()
       .setExtraData(mapOf("deptId" to user.deptId))
@@ -30,5 +31,9 @@ class UserServiceImpl(
     pageSize: Int
   ): Page<User> {
     return userRepository.findUser(pageNum, pageSize)
+  }
+
+  override fun create(user: User) {
+    userRepository.save(user)
   }
 }

@@ -14,7 +14,8 @@
  Date: 13/04/2025 20:57:33
 */
 
-
+CREATE SCHEMA IF NOT EXISTS public;
+SET SCHEMA public;
 -- ----------------------------
 -- Table structure for sys_user
 -- ----------------------------
@@ -22,23 +23,23 @@ DROP TABLE IF EXISTS "public"."sys_user";
 CREATE TABLE "public"."sys_user" (
   "user_id" int8 NOT NULL,
   "dept_id" int8,
-  "user_name" varchar(30) COLLATE "pg_catalog"."default" NOT NULL,
-  "nick_name" varchar(30) COLLATE "pg_catalog"."default",
-  "user_type" varchar(2) COLLATE "pg_catalog"."default",
-  "email" varchar(50) COLLATE "pg_catalog"."default",
-  "phone" varchar(11) COLLATE "pg_catalog"."default",
-  "sex" char(1) COLLATE "pg_catalog"."default",
-  "avatar" varchar(100) COLLATE "pg_catalog"."default",
-  "password" varchar(100) COLLATE "pg_catalog"."default",
-  "status" char(1) COLLATE "pg_catalog"."default",
-  "del_flag" char(1) COLLATE "pg_catalog"."default",
-  "login_ip" varchar(128) COLLATE "pg_catalog"."default",
+  "user_name" varchar(30) NOT NULL,
+  "nick_name" varchar(30),
+  "user_type" varchar(2),
+  "email"     varchar(50),
+  "phone"     varchar(11),
+  "sex"       char(1),
+  "avatar"    varchar(100),
+  "password"  varchar(100),
+  "status"    char(1),
+  "del_flag"  char(1),
+  "login_ip"  varchar(128),
   "login_date" timestamp(6),
-  "create_by" varchar(64) COLLATE "pg_catalog"."default",
+  "create_by" varchar(64),
   "create_time" timestamp(6),
-  "update_by" varchar(64) COLLATE "pg_catalog"."default",
+  "update_by" varchar(64),
   "update_time" timestamp(6),
-  "remark" varchar(500) COLLATE "pg_catalog"."default"
+  "remark"    varchar(500)
 )
 ;
 COMMENT ON COLUMN "public"."sys_user"."user_id" IS '用户ID';

@@ -10,4 +10,6 @@ interface UserService {
     pageNum: Int = 0,
     pageSize: Int = 10
   ): Page<User>
+
+  fun create(user: User)
 }

@@ -1,5 +1,6 @@
 package com.app.config.exception
 
+import cn.dev33.satoken.exception.SaTokenException
 import com.app.data.RespBean
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
@@ -20,6 +21,14 @@ class GlobalExceptionHandler() {
   companion object {
     private val log = LoggerFactory.getLogger(GlobalExceptionHandler::class.java)
   }
+
+  @ExceptionHandler(SaTokenException::class)
+  fun handleSaTokenException(e: SaTokenException, request: HttpServletRequest): RespBean<Void> {
+    val requestURI = request.requestURI
+    log.error("请求地址'{}', Sa Token 认证失败: {}", requestURI, e.message)
+    return RespBean.unauthorized(e.message ?: "未登录或 token 无效")
+  }
+
 
   /**
    * 业务异常
@@ -123,5 +132,4 @@ class GlobalExceptionHandler() {
     val message = e.bindingResult.fieldError!!.defaultMessage
     return RespBean.failure(message)
   }
-
 }

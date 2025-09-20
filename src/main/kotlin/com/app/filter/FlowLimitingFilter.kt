@@ -61,7 +61,7 @@ class FlowLimitingFilter : HttpFilter() {
    */
   private fun tryCount(address: String): Boolean {
     synchronized(address.intern()) {
-      if (template.hasKey(Const.FLOW_LIMIT_BLOCK + address) == true) {
+      if (template.hasKey(Const.FLOW_LIMIT_BLOCK + address)) {
         return false
       }
       val counterKey = Const.FLOW_LIMIT_COUNTER + address

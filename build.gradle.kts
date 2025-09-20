@@ -75,6 +75,7 @@ dependencies {
 
   // db
   implementation("org.postgresql:postgresql")
+  runtimeOnly("com.h2database:h2")
 //  implementation("com.ongres.scram:client:2.1")
 
   // lombok

@@ -6,14 +6,12 @@ import java.util.*
 
 /**
  * 响应实体类封装，Rest风格
- * @param id 请求ID
  * @param code 状态码
  * @param data 响应数据
  * @param message 其他消息
  * @param T 响应数据类型
  */
 data class RespBean<T>(
-  val id: Long,
   val code: Int,
   val data: T?,
   val message: String?
@@ -22,7 +20,7 @@ data class RespBean<T>(
     private val objectMapper = ObjectMapper()
 
     fun <T> success(data: T?): RespBean<T> {
-      return RespBean(requestId(), 200, data, "请求成功")
+      return RespBean(200, data, "请求成功")
     }
 
     fun <T> success(): RespBean<T> {
@@ -38,11 +36,11 @@ data class RespBean<T>(
     }
 
     fun <T> failure(message: String?): RespBean<T> {
-      return RespBean(requestId(), 500, null, message)
+      return RespBean(500, null, message)
     }
 
     fun <T> failure(code: Int, message: String?): RespBean<T> {
-      return RespBean(requestId(), code, null, message)
+      return RespBean(code, null, message)
     }
 
     /**

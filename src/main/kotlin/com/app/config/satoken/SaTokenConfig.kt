@@ -5,27 +5,34 @@ import cn.dev33.satoken.filter.SaServletFilter
 import cn.dev33.satoken.interceptor.SaInterceptor
 import cn.dev33.satoken.jwt.StpLogicJwtForSimple
 import cn.dev33.satoken.stp.StpLogic
-import cn.dev33.satoken.util.SaResult
+import cn.dev33.satoken.stp.StpUtil
+import com.app.data.RespBean
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 /**
- * [Sa-Token 权限认证] 配置类
- * @author click33
+ * Sa-Token 权限认证配置
  */
 @Configuration
-class SaTokenConfig : WebMvcConfigurer {
+class SaTokenConfig(
+  private val objectMapper: ObjectMapper
+) : WebMvcConfigurer {
 
   companion object {
+    private val log = LoggerFactory.getLogger(SaTokenConfig::class.java)
+
+    // 排除静态资源和API文档相关，方法或类使用注解
     val excludePath = listOf(
-      // 静态资源，可匿名访问
       "/*.html",
       "/**/*.html",
       "/**/*.css",
       "/**/*.js",
       "/profile/**",
+      "/favicon.ico",
 
       // API 文档相关
       "/doc.html/**",
@@ -36,41 +43,37 @@ class SaTokenConfig : WebMvcConfigurer {
     )
   }
 
-  /**
-   * 注册 Sa-Token 拦截器打开注解鉴权功能
-   */
   override fun addInterceptors(registry: InterceptorRegistry) {
-    // 注册 Sa-Token 拦截器打开注解鉴权功能
-    registry.addInterceptor(SaInterceptor())
+    // 打开注解鉴权功能,全局登录校验
+    registry.addInterceptor(SaInterceptor { _ -> StpUtil.checkLogin() })
       .addPathPatterns("/**")
       .excludePathPatterns(excludePath)
   }
 
-  /**
-   * Sa-Token 整合 jwt
-   */
+  /** Sa-Token 整合 jwt */
   @Bean
   fun getStpLogicJwt(): StpLogic {
     return StpLogicJwtForSimple()
   }
 
-  /**
-   * 注册 [Sa-Token 全局过滤器]
-   */
+  /** Sa-Token 全局过滤器（仅做通用 header/错误包装） */
   @Bean
   fun getSaServletFilter(): SaServletFilter {
     return SaServletFilter()
-      // 指定 [拦截路由] 与 [放行路由]
       .addInclude("/**").addExclude("/favicon.ico")
-      // 认证函数: 每次请求执行
-      .setAuth {
-        // println("---------- sa全局认证 ${SaHolder.getRequest().requestPath}")
-      }
-      // 异常处理函数：每次认证函数发生异常时执行此函数
+      // 登录校验改由 LoginCheckInterceptor 处理
+      .setAuth { }
+      // 认证异常的统一返回（仅处理 setAuth 内抛出的异常）
       .setError { e ->
-        println("---------- sa全局异常 ")
-        e.printStackTrace()
-        SaResult.error(e.message)
+        SaHolder.getResponse().setStatus(401)
+        SaHolder.getResponse().setHeader("Content-Type", "application/json;charset=utf-8")
+        val path = SaHolder.getRequest().requestPath
+        log.info("请求地址'{}', Sa Token 认证失败: {}", path, e.message)
+        return@setError objectMapper.writeValueAsString(
+          RespBean.unauthorized<String>(
+            e.message ?: "未登录或 token 无效"
+          )
+        )
       }
       // 前置函数：在每次认证函数之前执行
       .setBeforeAuth {
@@ -87,3 +90,4 @@ class SaTokenConfig : WebMvcConfigurer {
       }
   }
 }
+
