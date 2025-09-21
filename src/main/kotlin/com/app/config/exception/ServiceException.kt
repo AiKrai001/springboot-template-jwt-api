@@ -1,6 +1,5 @@
 package com.app.config.exception
 
-
 /**
  * 业务异常
  */

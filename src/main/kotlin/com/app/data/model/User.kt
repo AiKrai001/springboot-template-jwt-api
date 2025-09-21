@@ -33,4 +33,12 @@ interface User {
   val updateBy: String?
   val updateTime: Timestamp?
   val remark: String?
+
+  @ManyToMany
+  @JoinTable(
+    name = "sys_user_role",
+    joinColumnName = "user_id",
+    inverseJoinColumnName = "role_id"
+  )
+  val roles: List<Role>
 }

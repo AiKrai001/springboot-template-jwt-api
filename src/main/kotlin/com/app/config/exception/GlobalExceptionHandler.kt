@@ -29,7 +29,6 @@ class GlobalExceptionHandler() {
     return RespBean.unauthorized(e.message ?: "未登录或 token 无效")
   }
 
-
   /**
    * 业务异常
    */

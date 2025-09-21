@@ -8,7 +8,7 @@ spring:
   # 默认使用 H2 作为兜底数据源；若存在外部数据库配置（环境变量、命令行或 ./config/application.yml），会优先生效并覆盖此处
   datasource:
     driver-class-name: org.h2.Driver
-    url: 'jdbc:h2:mem:demo;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;'
+    url: 'jdbc:h2:file:./db/demo;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE'
     username: sa
     password:
   h2:

@@ -24,10 +24,9 @@ import java.io.PrintWriter
 @Slf4j
 @Component
 @Order(Const.ORDER_FLOW_LIMIT)
-class FlowLimitingFilter : HttpFilter() {
-
-  @Resource
-  private lateinit var template: StringRedisTemplate
+class FlowLimitingFilter(
+  private val template: StringRedisTemplate
+) : HttpFilter() {
 
   // 指定时间内最大请求次数限制
   @Value("\${spring.web.flow.limit}")

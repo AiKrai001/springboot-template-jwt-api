@@ -43,3 +43,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+db
+AGENTS.md

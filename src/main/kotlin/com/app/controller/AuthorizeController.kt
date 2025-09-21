@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "登录校验相关", description = "包括用户登录、注册、验证码请求等操作。")

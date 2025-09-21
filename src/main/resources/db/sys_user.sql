@@ -19,9 +19,14 @@ SET SCHEMA public;
 -- ----------------------------
 -- Table structure for sys_user
 -- ----------------------------
-DROP TABLE IF EXISTS "public"."sys_user";
-CREATE TABLE "public"."sys_user" (
-  "user_id" int8 NOT NULL,
+CREATE TABLE IF NOT EXISTS "public"."sys_user"
+(
+    "user_id"
+    int8
+    GENERATED
+    BY
+    DEFAULT AS
+    IDENTITY,
   "dept_id" int8,
   "user_name" varchar(30) NOT NULL,
   "nick_name" varchar(30),
@@ -39,9 +44,15 @@ CREATE TABLE "public"."sys_user" (
   "create_time" timestamp(6),
   "update_by" varchar(64),
   "update_time" timestamp(6),
-  "remark"    varchar(500)
+    "remark" varchar
+(
+    500
+),
+    PRIMARY KEY
+(
+    "user_id"
 )
-;
+    );
 COMMENT ON COLUMN "public"."sys_user"."user_id" IS '用户ID';
 COMMENT ON COLUMN "public"."sys_user"."dept_id" IS '部门ID';
 COMMENT ON COLUMN "public"."sys_user"."user_name" IS '用户账号';
@@ -66,4 +77,4 @@ COMMENT ON TABLE "public"."sys_user" IS '用户信息表';
 -- ----------------------------
 -- Primary Key structure for table sys_user
 -- ----------------------------
-ALTER TABLE "public"."sys_user" ADD CONSTRAINT "sys_user_pkey" PRIMARY KEY ("user_id");
+-- PK defined inline to be idempotent
