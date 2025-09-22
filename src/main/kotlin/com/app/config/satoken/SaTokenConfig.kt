@@ -36,10 +36,11 @@ class SaTokenConfig(
 
       // API 文档相关
       "/doc.html/**",
+      "/swagger-ui/**",
       "/swagger-ui.html",
       "/swagger-resources/**",
       "/webjars/**",
-      "/*/api-docs",
+      "/*/api-docs/**",
     )
   }
 
