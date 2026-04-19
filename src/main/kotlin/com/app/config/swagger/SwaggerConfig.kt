@@ -34,7 +34,7 @@ class SwaggerConfig {
         Info()
           .title("XXX用户系统API")
           .version("1.0")
-          .description("Knife4j集成springdoc-openapi示例")
+          .description("SpringDoc OpenAPI 示例")
           .termsOfService("http://doc.xiaominfo.com")
           .license(
             License().name("Apache 2.0")

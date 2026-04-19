@@ -1,7 +1,8 @@
 package com.app.data
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.MDC
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
 
 /**
@@ -17,7 +18,7 @@ data class RespBean<T>(
   val message: String?
 ) {
   companion object {
-    private val objectMapper = ObjectMapper()
+    private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
     fun <T> success(data: T?): RespBean<T> {
       return RespBean(200, data, "请求成功")

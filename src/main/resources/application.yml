@@ -2,6 +2,10 @@ server:
   port: 18080
   servlet:
     context-path: /
+logging:
+  include-application-name: false
+  pattern:
+    correlation: '[%X{traceId:-},%X{spanId:-},%X{reqId:-}] '
 spring:
   application:
     name: springboot-template-jwt-api
@@ -25,7 +29,10 @@ spring:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
   profiles:
-    active: knife4j,satoken
+    default: dev
+    group:
+      dev: docs,satoken
+      prod: docs,satoken
   web:
     verify:
       mail-limit: 60
@@ -60,9 +67,9 @@ jimmer:
   #  dialect: org.babyfish.jimmer.sql.dialect.PostgresDialect
   dialect: org.babyfish.jimmer.sql.dialect.H2Dialect
   # 是否打印SQL日志 默认false
-  show-sql: true
+  show-sql: false
   # 是否格式化SQL日志 默认false
-  pretty-sql: true
+  pretty-sql: false
   # 如果非NONE，验证数据库结构和代码实体类型结构的一致性，如果不一致，WARNING导致日志告警，ERROR导致报错
   # 本地(H2)放宽校验，外部真实数据库可在外部配置中覆盖为 ERROR
   database-validation-mode: NONE

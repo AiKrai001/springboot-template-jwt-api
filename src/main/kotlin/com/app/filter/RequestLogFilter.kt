@@ -1,42 +1,61 @@
 package com.app.filter
 
-import cn.dev33.satoken.stp.StpUtil
 import cn.hutool.core.lang.Snowflake
-import cn.hutool.json.JSONObject
-import com.app.config.satoken.SaTokenConfig
+import com.app.logging.HttpLogSupport
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import lombok.extern.slf4j.Slf4j
-import org.slf4j.MDC
 import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.ContentCachingResponseWrapper
+import java.time.Duration
+import java.util.Locale
 
-@Slf4j
 @Component
 class RequestLogFilter(
   private val snowflake: Snowflake
 ) : OncePerRequestFilter() {
 
-  private val ignores = SaTokenConfig.excludePath
   private val pathMatcher = AntPathMatcher()
+  private val excludedPaths = listOf(
+    "/doc.html",
+    "/swagger-ui/**",
+    "/v3/api-docs/**",
+    "/webjars/**",
+    "/h2-console/**",
+    "/actuator/**",
+    "/favicon.ico",
+    "/error"
+  )
+  private val staticExtensions = setOf(
+    ".js", ".css", ".png", ".jpg", ".jpeg", ".gif", ".svg",
+    ".ico", ".map", ".woff", ".woff2", ".ttf", ".eot", ".html"
+  )
+
+  override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+    val path = request.servletPath
+    return isIgnoredPath(path) || isStaticResource(path)
+  }
 
   override fun doFilterInternal(
     request: HttpServletRequest,
     response: HttpServletResponse,
     filterChain: FilterChain
   ) {
-    if (isIgnoreUrl(request.servletPath)) {
-      filterChain.doFilter(request, response)
-    } else {
-      val startTime = System.currentTimeMillis()
-      logRequestStart(request)
-      val wrapper = ContentCachingResponseWrapper(response)
+    val startTime = System.currentTimeMillis()
+    val reqId = HttpLogSupport.resolveRequestId(request) { snowflake.nextId().toString() }
+    val mdcSnapshot = HttpLogSupport.bindRequestContext(request, reqId)
+    response.setHeader(HttpLogSupport.REQUEST_ID_HEADER, reqId)
+    val wrapper = ContentCachingResponseWrapper(response)
+    logRequestStart(request)
+
+    try {
       filterChain.doFilter(request, wrapper)
-      logRequestEnd(wrapper, startTime)
+    } finally {
+      logRequestEnd(request, wrapper, startTime)
       wrapper.copyBodyToResponse()
+      mdcSnapshot.restore()
     }
   }
 
@@ -46,10 +65,15 @@ class RequestLogFilter(
    * @param url 请求路径
    * @return 是否需要忽略
    */
-  private fun isIgnoreUrl(url: String): Boolean {
-    return ignores.any { pattern ->
+  private fun isIgnoredPath(url: String): Boolean {
+    return excludedPaths.any { pattern ->
       pathMatcher.match(pattern, url)
     }
+  }
+
+  private fun isStaticResource(path: String): Boolean {
+    val normalizedPath = path.lowercase(Locale.getDefault())
+    return staticExtensions.any { normalizedPath.endsWith(it) }
   }
 
   /**
@@ -58,59 +82,42 @@ class RequestLogFilter(
    * @param wrapper   用于读取响应结果的包装类
    * @param startTime 起始时间
    */
-  fun logRequestEnd(wrapper: ContentCachingResponseWrapper, startTime: Long) {
-    val time = System.currentTimeMillis() - startTime
+  fun logRequestEnd(
+    request: HttpServletRequest,
+    wrapper: ContentCachingResponseWrapper,
+    startTime: Long
+  ) {
+    val durationMs = System.currentTimeMillis() - startTime
     val status = wrapper.status
-    val content = if (status != 200) {
-      "$status 错误"
-    } else {
-      String(wrapper.contentAsByteArray)
-    }
-
-    log.info("\n>>>>>请求处理耗时:[{}ms] 响应结果:{}", time, content)
+    log.atInfo()
+      .addKeyValue("event.action", "request.complete")
+      .addKeyValue("event.category", "web")
+      .addKeyValue("event.type", "access")
+      .addKeyValue("event.outcome", HttpLogSupport.resolveOutcome(status))
+      .addKeyValue("http.request.method", request.method)
+      .addKeyValue("url.path", request.requestURI)
+      .addKeyValue("client.address", HttpLogSupport.resolveClientIp(request))
+      .addKeyValue("user.id", HttpLogSupport.currentUserId())
+      .addKeyValue("user_agent.original", HttpLogSupport.resolveUserAgent(request))
+      .addKeyValue("http.response.status_code", status)
+      .addKeyValue("http.response.body.bytes", wrapper.contentSize)
+      .addKeyValue("event.duration", Duration.ofMillis(durationMs).toNanos())
+      .addKeyValue("duration_ms", durationMs)
+      .log("HTTP request completed")
   }
 
-  /**
-   * 请求开始时的日志打印，包含请求全部信息，以及对应用户角色
-   *
-   * @param request 请求
-   */
-  fun logRequestStart(request: HttpServletRequest) {
-    val reqId = snowflake.nextId()
-    MDC.put("reqId", reqId.toString())
-
-    val params = JSONObject().apply {
-      request.parameterMap.forEach { (k, v) ->
-        put(k, if (v.isNotEmpty()) v[0] else null)
-      }
-    }
-
-    if (StpUtil.isLogin()) {
-      val id = StpUtil.getLoginId()
-      log.info(
-        """
-        
-                >>>>>请求ID:[$reqId]
-                >>>>>请求URL:["${request.servletPath}"](${request.method}) 
-                >>>>>远程IP:[${request.remoteAddr}] 
-                >>>>>用户名:[username] 
-                >>>>>用户ID:$id 
-                >>>>>角色:${StpUtil.getRoleList()} 
-                >>>>>请求参数列表: [$params]
-        """.trimIndent()
-      )
-    } else {
-      log.info(
-        """
-        
-                >>>>>请求ID:[$reqId]
-                >>>>>请求URL:["${request.servletPath}"](${request.method}) 
-                >>>>>远程IP地址:[${request.remoteAddr}] 
-                >>>>>身份:未验证 
-                >>>>>请求参数列表: [$params]
-        """.trimIndent()
-      )
-    }
+  private fun logRequestStart(request: HttpServletRequest) {
+    log.atInfo()
+      .addKeyValue("event.action", "request.start")
+      .addKeyValue("event.category", "web")
+      .addKeyValue("event.type", "access")
+      .addKeyValue("http.request.method", request.method)
+      .addKeyValue("url.path", request.requestURI)
+      .addKeyValue("client.address", HttpLogSupport.resolveClientIp(request))
+      .addKeyValue("user.id", HttpLogSupport.currentUserId())
+      .addKeyValue("user_agent.original", HttpLogSupport.resolveUserAgent(request))
+      .addKeyValue("request.params", HttpLogSupport.buildSafeParams(request))
+      .log("HTTP request started")
   }
 
   companion object {

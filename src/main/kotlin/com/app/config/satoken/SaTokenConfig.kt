@@ -7,10 +7,14 @@ import cn.dev33.satoken.jwt.StpLogicJwtForSimple
 import cn.dev33.satoken.stp.StpLogic
 import cn.dev33.satoken.stp.StpUtil
 import com.app.data.RespBean
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.app.logging.HttpLogSupport
+import tools.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -25,6 +29,10 @@ class SaTokenConfig(
   companion object {
     private val log = LoggerFactory.getLogger(SaTokenConfig::class.java)
 
+    val authIncludePath = listOf(
+      "/api/**"
+    )
+
     // 排除静态资源和API文档相关，方法或类使用注解
     val excludePath = listOf(
       "/*.html",
@@ -35,7 +43,6 @@ class SaTokenConfig(
       "/favicon.ico",
 
       // API 文档相关
-      "/doc.html/**",
       "/swagger-ui/**",
       "/swagger-ui.html",
       "/swagger-resources/**",
@@ -47,7 +54,7 @@ class SaTokenConfig(
   override fun addInterceptors(registry: InterceptorRegistry) {
     // 打开注解鉴权功能,全局登录校验
     registry.addInterceptor(SaInterceptor { _ -> StpUtil.checkLogin() })
-      .addPathPatterns("/**")
+      .addPathPatterns(*authIncludePath.toTypedArray())
       .excludePathPatterns(excludePath)
   }
 
@@ -61,7 +68,7 @@ class SaTokenConfig(
   @Bean
   fun getSaServletFilter(): SaServletFilter {
     return SaServletFilter()
-      .addInclude("/**").addExclude("/favicon.ico")
+      .addInclude(*authIncludePath.toTypedArray()).addExclude(*excludePath.toTypedArray())
       // 登录校验改由 LoginCheckInterceptor 处理
       .setAuth { }
       // 认证异常的统一返回（仅处理 setAuth 内抛出的异常）
@@ -69,7 +76,21 @@ class SaTokenConfig(
         SaHolder.getResponse().setStatus(401)
         SaHolder.getResponse().setHeader("Content-Type", "application/json;charset=utf-8")
         val path = SaHolder.getRequest().requestPath
-        log.info("请求地址'{}', Sa Token 认证失败: {}", path, e.message)
+        val request = (RequestContextHolder.getRequestAttributes() as? ServletRequestAttributes)?.request
+        val clientIp = request?.let(HttpLogSupport::resolveClientIp) ?: "unknown"
+        val method = request?.method ?: "UNKNOWN"
+        log.atWarn()
+          .addKeyValue("event.action", "auth.unauthorized")
+          .addKeyValue("event.category", "error")
+          .addKeyValue("event.outcome", "failure")
+          .addKeyValue("http.request.method", method)
+          .addKeyValue("url.path", path)
+          .addKeyValue("client.address", clientIp)
+          .addKeyValue("user.id", HttpLogSupport.currentUserId())
+          .addKeyValue("http.response.status_code", HttpStatus.UNAUTHORIZED.value())
+          .addKeyValue("error.type", e.javaClass.simpleName)
+          .addKeyValue("error.message", e.message?.take(512) ?: "unauthorized")
+          .log("HTTP request failed")
         return@setError objectMapper.writeValueAsString(
           RespBean.unauthorized<String>(
             e.message ?: "未登录或 token 无效"

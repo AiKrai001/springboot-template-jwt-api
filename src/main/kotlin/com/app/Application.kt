@@ -11,7 +11,9 @@ private val log = LoggerFactory.getLogger(SpringbootTemplateJwtApiApplication::c
 
 fun main(args: Array<String>) {
   runApplication<SpringbootTemplateJwtApiApplication>(*args).let {
-    log.info("🚀 启动成功!")
-    log.info("📖 访问地址: http://localhost:18080")
+    log.atInfo()
+      .addKeyValue("event.action", "application.started")
+      .addKeyValue("server.port", 18080)
+      .log("Application started")
   }
 }

@@ -2,7 +2,6 @@ package com.app.config
 
 import com.app.config.satoken.SaTokenConfig
 import com.app.data.RespBean
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.core.MethodParameter
 import org.springframework.http.MediaType
 import org.springframework.http.converter.HttpMessageConverter
@@ -11,6 +10,7 @@ import org.springframework.http.server.ServerHttpResponse
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice
+import tools.jackson.databind.ObjectMapper
 
 @RestControllerAdvice
 class ResponseAdvisor(

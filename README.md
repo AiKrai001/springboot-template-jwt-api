@@ -10,7 +10,7 @@
 - **编程语言**: Kotlin 1.9.25
 - **认证授权**: Sa-Token + JWT
 - **ORM 框架**: Jimmer 0.9.73
-- **API 文档**: SpringDoc + Knife4j
+- **API 文档**: SpringDoc Swagger UI
 - **数据库**: PostgreSQL
 - **缓存**: Redis
 - **工具类**: Hutool
@@ -33,7 +33,7 @@
 - 请求限流 (`FlowLimitingFilter`)
 
 ### 3. 开发工具
-- Swagger/Knife4j API 文档
+- Swagger API 文档
 - 代码格式化 (Spotless)
 - 分页查询支持
 - 雪花 ID 生成器
@@ -95,5 +95,4 @@ spring:
 
 ### 4. 访问 API 文档
 
-- Knife4j UI: `http://localhost:18080/doc.html`
 - Swagger UI: `http://localhost:18080/swagger-ui.html`

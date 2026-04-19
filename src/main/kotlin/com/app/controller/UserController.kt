@@ -8,6 +8,7 @@ import org.babyfish.jimmer.Page
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -21,10 +22,10 @@ class UserController(
   @SaIgnore
   @PostMapping("/list")
   fun list(
-    pageNum: Int? = 0,
-    pageSize: Int? = 10
+    @RequestParam(defaultValue = "0") pageNum: Int,
+    @RequestParam(defaultValue = "10") pageSize: Int
   ): Page<User> {
-    return userService.list(pageNum!!, pageSize!!)
+    return userService.list(pageNum, pageSize)
   }
 
   @SaIgnore
