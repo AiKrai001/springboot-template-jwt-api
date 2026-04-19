@@ -26,4 +26,9 @@ interface UserRepository : KRepository<User, Long> {
     where(table.userName eq username)
     select(table)
   }.fetchOne()
+
+  fun findByUserId(id: Long): User? = sql.createQuery(User::class) {
+    where(table.userId eq id)
+    select(table)
+  }.execute().firstOrNull()
 }

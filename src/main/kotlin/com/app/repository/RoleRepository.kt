@@ -27,4 +27,9 @@ interface RoleRepository : KRepository<Role, Long> {
       where += table.users { userId eq uId }
       select(table.roleKey)
     }.execute()
+
+  fun findByRoleKey(key: String): Role? = sql.createQuery(Role::class) {
+    where(table.roleKey eq key)
+    select(table)
+  }.execute().firstOrNull()
 }

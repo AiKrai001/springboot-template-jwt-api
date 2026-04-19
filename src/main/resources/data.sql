@@ -7,6 +7,15 @@ MERGE INTO public.sys_role (role_id, role_name, role_key, status, remark)
 MERGE INTO public.sys_role (role_id, role_name, role_key, status, remark)
     KEY (role_id) VALUES
     (2, 'User', 'user', '0', 'Built-in user');
+MERGE INTO public.sys_role (role_id, role_name, role_key, status, remark)
+    KEY (role_id) VALUES
+    (3, 'Manager', 'manager', '0', 'Leave approval manager');
+MERGE INTO public.sys_role (role_id, role_name, role_key, status, remark)
+    KEY (role_id) VALUES
+    (4, 'HR', 'hr', '0', 'Leave approval hr');
+MERGE INTO public.sys_role (role_id, role_name, role_key, status, remark)
+    KEY (role_id) VALUES
+    (5, 'Director', 'director', '0', 'Leave approval director');
 
 -- Permissions
 MERGE INTO public.sys_permission (permission_id, perm_name, perm_key, status, remark)
@@ -36,10 +45,31 @@ MERGE INTO public.sys_user (
     ) KEY (user_id) VALUES
     (2, NULL, 'user1', 'User One', '00', NULL, NULL, NULL, NULL,
     '7c4a8d09ca3762af61e59520943dc26494f8941b', '0', '0', NULL, NULL, 'system', CURRENT_TIMESTAMP, NULL, NULL, 'seed');
+MERGE INTO public.sys_user (
+    user_id, dept_id, user_name, nick_name, user_type, email, phone, sex, avatar,
+    password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark
+    ) KEY (user_id) VALUES
+    (3, NULL, 'manager1', 'Manager One', '00', NULL, NULL, NULL, NULL,
+    '7c4a8d09ca3762af61e59520943dc26494f8941b', '0', '0', NULL, NULL, 'system', CURRENT_TIMESTAMP, NULL, NULL, 'seed');
+MERGE INTO public.sys_user (
+    user_id, dept_id, user_name, nick_name, user_type, email, phone, sex, avatar,
+    password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark
+    ) KEY (user_id) VALUES
+    (4, NULL, 'hr1', 'HR One', '00', NULL, NULL, NULL, NULL,
+    '7c4a8d09ca3762af61e59520943dc26494f8941b', '0', '0', NULL, NULL, 'system', CURRENT_TIMESTAMP, NULL, NULL, 'seed');
+MERGE INTO public.sys_user (
+    user_id, dept_id, user_name, nick_name, user_type, email, phone, sex, avatar,
+    password, status, del_flag, login_ip, login_date, create_by, create_time, update_by, update_time, remark
+    ) KEY (user_id) VALUES
+    (5, NULL, 'director1', 'Director One', '00', NULL, NULL, NULL, NULL,
+    '7c4a8d09ca3762af61e59520943dc26494f8941b', '0', '0', NULL, NULL, 'system', CURRENT_TIMESTAMP, NULL, NULL, 'seed');
 
 -- User-Role mappings
 MERGE INTO public.sys_user_role (user_id, role_id) KEY (user_id, role_id) VALUES (1, 1);
 MERGE INTO public.sys_user_role (user_id, role_id) KEY (user_id, role_id) VALUES (2, 2);
+MERGE INTO public.sys_user_role (user_id, role_id) KEY (user_id, role_id) VALUES (3, 3);
+MERGE INTO public.sys_user_role (user_id, role_id) KEY (user_id, role_id) VALUES (4, 4);
+MERGE INTO public.sys_user_role (user_id, role_id) KEY (user_id, role_id) VALUES (5, 5);
 
 -- Role-Permission mappings
 -- admin: all perms

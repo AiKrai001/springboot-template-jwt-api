@@ -73,3 +73,6 @@ jimmer:
   # 如果非NONE，验证数据库结构和代码实体类型结构的一致性，如果不一致，WARNING导致日志告警，ERROR导致报错
   # 本地(H2)放宽校验，外部真实数据库可在外部配置中覆盖为 ERROR
   database-validation-mode: NONE
+
+flowable:
+  database-schema-update: true

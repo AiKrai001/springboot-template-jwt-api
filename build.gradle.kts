@@ -12,6 +12,7 @@ group = "com.app"
 version = "0.0.1-SNAPSHOT"
 val jimmerVersion = "0.10.6"
 val springdocVersion = "3.0.3"
+val flowableVersion = "8.0.0"
 
 
 java {
@@ -62,6 +63,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
   implementation("org.springframework.boot:spring-boot-starter-web")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
+  implementation("org.flowable:flowable-spring-boot-starter-process:${flowableVersion}")
   implementation("tools.jackson.module:jackson-module-kotlin")
 
   // redis

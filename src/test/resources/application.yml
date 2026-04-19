@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: springboot-template-jwt-api-test
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:testdb-${random.uuid};DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/*.sql
+      encoding: UTF-8
+      continue-on-error: true
+
+jimmer:
+  language: kotlin
+  dialect: org.babyfish.jimmer.sql.dialect.H2Dialect
+  database-validation-mode: NONE
+
+flowable:
+  database-schema-update: true

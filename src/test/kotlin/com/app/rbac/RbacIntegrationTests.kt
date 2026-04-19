@@ -4,19 +4,19 @@ import com.app.data.dto.AssignPermissionsRequest
 import com.app.data.dto.AssignRolesRequest
 import com.app.service.PermissionService
 import com.app.service.RoleService
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.hamcrest.Matchers.containsString
 import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.databind.ObjectMapper
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -43,7 +43,12 @@ class RbacIntegrationTests {
     )
       .andExpect(status().isOk)
       .andReturn()
-    val token = result.response.contentAsString.trim()
+    val responseBody = result.response.contentAsString.trim()
+    val token = if (responseBody.startsWith("{")) {
+      objectMapper.readTree(responseBody)["data"].asText()
+    } else {
+      responseBody
+    }
     assertTrue(token.isNotBlank(), "Token should not be blank")
     return token
   }
@@ -60,7 +65,7 @@ class RbacIntegrationTests {
     // role list
     mockMvc.perform(
       post("/api/role/list")
-        .header("satoken", token)
+        .header("Authorization", bearerToken(token))
         .param("pageNum", "0")
         .param("pageSize", "10")
     )
@@ -70,7 +75,7 @@ class RbacIntegrationTests {
     // permission list
     mockMvc.perform(
       post("/api/permission/list")
-        .header("satoken", token)
+        .header("Authorization", bearerToken(token))
         .param("pageNum", "0")
         .param("pageSize", "10")
     )
@@ -86,7 +91,7 @@ class RbacIntegrationTests {
     val assignRoleReq = AssignRolesRequest(userId = 2L, roleIds = listOf(1L))
     mockMvc.perform(
       post("/api/role/assign-to-user")
-        .header("satoken", token)
+        .header("Authorization", bearerToken(token))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(assignRoleReq))
     )
@@ -99,7 +104,7 @@ class RbacIntegrationTests {
     val assignPermReq = AssignPermissionsRequest(roleId = 2L, permissionIds = listOf(2L))
     mockMvc.perform(
       post("/api/permission/assign-to-role")
-        .header("satoken", token)
+        .header("Authorization", bearerToken(token))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(assignPermReq))
     )
@@ -108,4 +113,5 @@ class RbacIntegrationTests {
     val permKeys = permissionService.findPermissionKeysByUserId(2L)
     assertTrue(permKeys.contains("user:create"), "user1 should get 'user:create' via role after assignment")
   }
+  private fun bearerToken(token: String): String = "Bearer $token"
 }
