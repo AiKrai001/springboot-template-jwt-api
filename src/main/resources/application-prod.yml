@@ -10,6 +10,12 @@ logging:
     correlation: '[%X{traceId:-},%X{spanId:-},%X{reqId:-}] '
 
 management:
+  otlp:
+    metrics:
+      export:
+        # 当前仓库默认观测栈是 Loki/Grafana 日志方案，不包含 OTLP receiver。
+        # 如需接入 OpenTelemetry Collector，可通过外部配置覆盖为 true。
+        enabled: false
   endpoints:
     web:
       exposure:
@@ -24,5 +30,8 @@ management:
       application: ${spring.application.name}
       environment: prod
   tracing:
+    export:
+      # 保留 traceId/spanId 相关上下文，但默认不向不存在的 OTLP 端点上报。
+      enabled: false
     sampling:
       probability: 0.1

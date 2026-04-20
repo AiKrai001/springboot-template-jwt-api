@@ -1,0 +1,46 @@
+# 来源注释清单
+# - 官方来源 1: Fluent Bit Forward input
+#   https://docs.fluentbit.io/manual/data-pipeline/inputs/forward
+# - 官方来源 2: Fluent Bit Parser filter
+#   https://docs.fluentbit.io/manual/pipeline/filters/parser
+# - 官方来源 3: Fluent Bit Loki output
+#   https://docs.fluentbit.io/manual/pipeline/outputs/loki
+# - 相关来源: Docker fluentd logging driver
+#   https://docs.docker.com/engine/logging/drivers/fluentd/
+# 本文件定制项:
+# - match 使用 springboot-template-jwt-api，对应 compose 中的日志 tag
+# - host 使用 loki，对应 compose 中的 Loki 服务名
+# - labels 固定为 service/environment/job/node，便于 Grafana 查询
+# - structured_metadata 使用 container_name/source，来自 Docker fluentd driver 传入字段
+service:
+  flush: 1
+  log_level: info
+  parsers_file: /fluent-bit/etc/parsers.yml
+
+pipeline:
+  inputs:
+    # 来源: Forward input 文档中的 listen/port 参数
+    - name: forward
+      listen: 0.0.0.0
+      port: 24224
+
+  filters:
+    # 来源: Parser filter 文档中的 key_name/parser/reserve_data/preserve_key 参数
+    # 这里解析 Docker fluentd logging driver 传入记录中的 log 字段
+    - name: parser
+      match: springboot-template-jwt-api
+      key_name: log
+      parser: ecs_json
+      reserve_data: on
+      preserve_key: off
+
+  outputs:
+    # 来源: Loki output 文档中的 host/port/labels/structured_metadata/line_format 参数
+    - name: loki
+      match: springboot-template-jwt-api
+      host: loki
+      port: 3100
+      labels: job=springboot-template-jwt-api,service=springboot-template-jwt-api,environment=prod,node=standalone
+      structured_metadata: container_name=$container_name,source=$source
+      line_format: json
+      drop_single_key: off

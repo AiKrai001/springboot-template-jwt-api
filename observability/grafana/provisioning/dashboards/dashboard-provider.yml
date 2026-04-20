@@ -1,0 +1,21 @@
+# 来源注释清单
+# - 官方来源 1: Grafana dashboard provisioning
+#   https://grafana.com/docs/grafana/latest/administration/provisioning/#dashboards
+# - 官方来源 2: Grafana tutorial for provisioning dashboards and data sources
+#   https://grafana.com/tutorials/provision-dashboards-and-data-sources/
+# 本文件定制项:
+# - folder 固定为 Observability，便于和默认 General 区分
+# - path 使用 /etc/grafana/provisioning/dashboards/json，对应当前容器挂载目录
+apiVersion: 1
+
+providers:
+  - name: springboot-template-jwt-api
+    orgId: 1
+    folder: Observability
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 15
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/provisioning/dashboards/json
+

@@ -1,0 +1,76 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      redis:
+        condition: service_healthy
+      fluent-bit:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24224"
+        fluentd-async: "true"
+        tag: "springboot-template-jwt-api"
+    ports:
+      - "18080:18080"
+    restart: unless-stopped
+    volumes:
+      - app-db:/app/db
+
+  redis:
+    image: redis:8.6.2-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  fluent-bit:
+    image: cr.fluentbit.io/fluent/fluent-bit:5.0.3
+    command: ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.yml"]
+    depends_on:
+      - loki
+    ports:
+      - "24224:24224"
+    restart: unless-stopped
+    volumes:
+      - ./fluent-bit/fluent-bit.yml:/fluent-bit/etc/fluent-bit.yml:ro
+      - ./fluent-bit/parsers.yml:/fluent-bit/etc/parsers.yml:ro
+
+  loki:
+    image: grafana/loki:3.7.1
+    command: ["-config.file=/etc/loki/config.yml"]
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+    volumes:
+      - loki-data:/loki
+      - ./loki/config.yml:/etc/loki/config.yml:ro
+
+  grafana:
+    image: grafana/grafana:13.0.1
+    depends_on:
+      - loki
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123456
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+
+volumes:
+  app-db:
+  loki-data:
+  grafana-data:

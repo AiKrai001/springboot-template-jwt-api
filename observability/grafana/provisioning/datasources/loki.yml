@@ -1,0 +1,22 @@
+# 来源注释清单
+# - 官方来源 1: Grafana Provisioning
+#   https://grafana.com/docs/grafana/latest/administration/provisioning/
+# - 官方来源 2: Grafana Loki data source provisioning example
+#   https://grafana.com/docs/grafana/latest/datasources/loki/
+# 本文件定制项:
+# - uid 固定为 loki，便于预置 Dashboard 稳定引用
+# - orgId/version 显式固定为 1，避免已有 Grafana 状态下更新行为不明确
+# - url 使用 http://loki:3100，对应 compose 中的 Loki 服务名
+# - isDefault/editable 用于让本地演示环境开箱即用
+apiVersion: 1
+
+datasources:
+  - name: Loki
+    orgId: 1
+    version: 1
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: true
+    editable: false

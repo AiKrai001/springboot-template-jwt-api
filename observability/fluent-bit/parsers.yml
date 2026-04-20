@@ -1,0 +1,10 @@
+# 来源注释清单
+# - 官方来源 1: Fluent Bit JSON parser
+#   https://docs.fluentbit.io/manual/pipeline/parsers/json
+# - 官方来源 2: Fluent Bit Parser filter
+#   https://docs.fluentbit.io/manual/pipeline/filters/parser
+# 本文件定制项:
+# - parser 名称 ecs_json 为本仓库自定义命名，用于表达当前应用输出的是 ECS 风格 JSON 日志
+parsers:
+  - name: ecs_json
+    format: json

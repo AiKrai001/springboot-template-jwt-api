@@ -1,0 +1,620 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Preprovisioned Loki dashboard for the SpringBoot Template JWT API demo stack.",
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "content": "## 快速检索\n- 顶部 `Node` 选节点，`Level` 选日志级别；`TraceId / SpanId / ReqId / URL Path` 支持按字段直接筛。\n- 字段输入框默认值都是 `.*`，表示不过滤；填入具体值就是精确匹配，填正则也可以做模式匹配。\n- 当前结果面板会直接展示请求方法、路径、状态码、结果、请求 ID 和摘要信息，比原始 JSON 更直观。\n- 需要更复杂的多条件组合时，再进入左侧 `Explore` 使用 LogQL。",
+        "mode": "markdown"
+      },
+      "transparent": true,
+      "title": "日志检索说明",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "{job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json level=\"log.level\", trace_id=\"traceId\", span_id=\"spanId\", req_id=\"reqId\", url_path=\"url.path\", action=\"event.action\", outcome=\"event.outcome\", method=\"http.request.method\", status=\"http.response.status_code\", msg=\"message\" | level=~\"${level:regex}\" | trace_id=~\"${traceId:raw}\" | span_id=~\"${spanId:raw}\" | req_id=~\"${reqId:raw}\" | url_path=~\"${urlPath:raw}\" | label_format _raw_json=\"{{ __line__ }}\" | line_format \"action={{.action}} method={{.method}} path={{.url_path}} status={{.status}} outcome={{.outcome}} reqId={{.req_id}} message={{.msg}}\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "日志快速搜索结果",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 0,
+        "y": 13
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json event_action=\"event.action\" | event_action=\"request.complete\" [1m]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "请求量（1 分钟窗口）",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 13
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json status=\"http.response.status_code\" | status=~\"4..\" | __error__=\"\" [5m]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "4xx 数量（5 分钟窗口）",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 13
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "sum(count_over_time({job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json status=\"http.response.status_code\" | status=500 | __error__=\"\" [5m]))",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "5xx 数量（5 分钟窗口）",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "id": 5,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "{job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json action=\"event.action\", outcome=\"event.outcome\", method=\"http.request.method\", url_path=\"url.path\", status=\"http.response.status_code\", req_id=\"reqId\", msg=\"message\" | action=\"request.complete\" | label_format _raw_json=\"{{ __line__ }}\" | line_format \"action={{.action}} method={{.method}} path={{.url_path}} status={{.status}} outcome={{.outcome}} reqId={{.req_id}} message={{.msg}}\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "请求完成日志",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "id": 8,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "{job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json event_category=\"event.category\", log_logger=\"log.logger\", action=\"event.action\", outcome=\"event.outcome\", method=\"http.request.method\", url_path=\"url.path\", status=\"http.response.status_code\", req_id=\"reqId\", msg=\"message\" | event_category=\"error\" | log_logger=\"com.app.config.exception.GlobalExceptionHandler\" | label_format _raw_json=\"{{ __line__ }}\" | line_format \"action={{.action}} method={{.method}} path={{.url_path}} status={{.status}} outcome={{.outcome}} reqId={{.req_id}} message={{.msg}}\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "异常请求日志",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 29
+      },
+      "id": 6,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "{job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json action=\"event.action\", outcome=\"event.outcome\", method=\"http.request.method\", url_path=\"url.path\", status=\"http.response.status_code\", req_id=\"reqId\", msg=\"message\" | status=~\"4..\" | __error__=\"\" | label_format _raw_json=\"{{ __line__ }}\" | line_format \"action={{.action}} method={{.method}} path={{.url_path}} status={{.status}} outcome={{.outcome}} reqId={{.req_id}} message={{.msg}}\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "4xx 请求日志",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 29
+      },
+      "id": 7,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "editorMode": "code",
+          "expr": "{job=\"springboot-template-jwt-api\",node=~\"${node:regex}\"} | json level=\"log.level\", action=\"event.action\", outcome=\"event.outcome\", method=\"http.request.method\", url_path=\"url.path\", status=\"http.response.status_code\", req_id=\"reqId\", msg=\"message\" | level=\"ERROR\" | label_format _raw_json=\"{{ __line__ }}\" | line_format \"action={{.action}} method={{.method}} path={{.url_path}} status={{.status}} outcome={{.outcome}} reqId={{.req_id}} message={{.msg}}\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "ERROR 日志",
+      "type": "logs"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 41,
+  "tags": [
+    "loki",
+    "logs",
+    "springboot",
+    "provisioned"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "loki"
+        },
+        "definition": "label_values({job=\"springboot-template-jwt-api\"}, node)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Node",
+        "multi": false,
+        "name": "node",
+        "options": [],
+        "query": "label_values({job=\"springboot-template-jwt-api\"}, node)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Level",
+        "multi": false,
+        "name": "level",
+        "options": [],
+        "query": "INFO,WARN,ERROR",
+        "refresh": 1,
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "TraceId",
+        "name": "traceId",
+        "options": [
+          {
+            "selected": true,
+            "text": ".*",
+            "value": ".*"
+          }
+        ],
+        "query": ".*",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "SpanId",
+        "name": "spanId",
+        "options": [
+          {
+            "selected": true,
+            "text": ".*",
+            "value": ".*"
+          }
+        ],
+        "query": ".*",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "ReqId",
+        "name": "reqId",
+        "options": [
+          {
+            "selected": true,
+            "text": ".*",
+            "value": ".*"
+          }
+        ],
+        "query": ".*",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "URL Path",
+        "name": "urlPath",
+        "options": [
+          {
+            "selected": true,
+            "text": ".*",
+            "value": ".*"
+          }
+        ],
+        "query": ".*",
+        "skipUrlSync": false,
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "SpringBoot Template JWT API Overview",
+  "uid": "springboot-template-jwt-api-overview",
+  "version": 4
+}

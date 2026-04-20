@@ -1,0 +1,43 @@
+# 来源注释清单
+# - 官方来源 1: Fluent Bit Forward input
+#   https://docs.fluentbit.io/manual/data-pipeline/inputs/forward
+# - 官方来源 2: Fluent Bit Parser filter
+#   https://docs.fluentbit.io/manual/pipeline/filters/parser
+# - 官方来源 3: Fluent Bit Loki output
+#   https://docs.fluentbit.io/manual/pipeline/outputs/loki
+# - 官方来源 4: Fluent Bit variables
+#   https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/variables
+# - 相关来源: Docker fluentd logging driver
+#   https://docs.docker.com/engine/logging/drivers/fluentd/
+# 本文件定制项:
+# - 通过环境变量把日志统一发往中心 Loki
+# - node 标签区分不同业务节点
+# - structured_metadata 保留 Docker logging driver 传入的容器元数据
+service:
+  flush: 1
+  log_level: info
+  parsers_file: /fluent-bit/etc/parsers.yml
+
+pipeline:
+  inputs:
+    - name: forward
+      listen: 0.0.0.0
+      port: 24224
+
+  filters:
+    - name: parser
+      match: springboot-template-jwt-api
+      key_name: log
+      parser: ecs_json
+      reserve_data: on
+      preserve_key: off
+
+  outputs:
+    - name: loki
+      match: springboot-template-jwt-api
+      host: ${LOKI_HOST}
+      port: ${LOKI_PORT}
+      labels: job=${LOKI_JOB},service=${LOKI_SERVICE},environment=${LOKI_ENVIRONMENT},node=${NODE_NAME}
+      structured_metadata: container_name=$container_name,source=$source
+      line_format: json
+      drop_single_key: off

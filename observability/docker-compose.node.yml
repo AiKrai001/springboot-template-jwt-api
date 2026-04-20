@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      fluent-bit:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME
+      - SPRING_DATASOURCE_URL
+      - SPRING_DATASOURCE_USERNAME
+      - SPRING_DATASOURCE_PASSWORD
+      - SPRING_DATA_REDIS_HOST
+      - SPRING_DATA_REDIS_PORT
+      - SPRING_DATA_REDIS_PASSWORD
+      - JIMMER_DIALECT
+      - JIMMER_DATABASE_VALIDATION_MODE
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "127.0.0.1:24224"
+        fluentd-async: "true"
+        tag: "springboot-template-jwt-api"
+    ports:
+      - "${APP_PORT:-18080}:18080"
+    restart: unless-stopped
+
+  fluent-bit:
+    image: cr.fluentbit.io/fluent/fluent-bit:5.0.3
+    command: ["/fluent-bit/bin/fluent-bit", "-c", "/fluent-bit/etc/fluent-bit.yml"]
+    environment:
+      NODE_NAME: ${NODE_NAME:?Set NODE_NAME for this business node, for example node-a}
+      LOKI_HOST: ${LOKI_HOST:?Set LOKI_HOST to the central Loki address}
+      LOKI_PORT: ${LOKI_PORT:-3100}
+      LOKI_JOB: ${LOKI_JOB:-springboot-template-jwt-api}
+      LOKI_SERVICE: ${LOKI_SERVICE:-springboot-template-jwt-api}
+      LOKI_ENVIRONMENT: ${LOKI_ENVIRONMENT:-prod}
+    ports:
+      - "24224:24224"
+    restart: unless-stopped
+    volumes:
+      - ./fluent-bit/fluent-bit-node.yml:/fluent-bit/etc/fluent-bit.yml:ro
+      - ./fluent-bit/parsers.yml:/fluent-bit/etc/parsers.yml:ro

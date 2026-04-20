@@ -1,0 +1,4 @@
+# 官方来源:
+# https://grafana.com/docs/grafana/latest/alerting/set-up/provision-alerting-resources/file-provisioning/
+# 最小合法 alerting provisioning 文件，仅用于保留目录并避免启动时目录缺失告警。
+apiVersion: 1

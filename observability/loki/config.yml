@@ -1,0 +1,41 @@
+# 来源注释清单
+# - 官方来源 1: Loki filesystem configuration example
+#   https://grafana.com/docs/loki/latest/configure/examples/configuration-examples/
+# - 官方来源 2: Loki tutorial / single-binary local stack
+#   https://grafana.com/docs/loki/latest/get-started/quick-start/tutorial/
+# - 官方来源 3: Loki structured metadata
+#   https://grafana.com/docs/loki/latest/get-started/labels/structured-metadata/
+# - 官方来源 4: Loki configuration reference
+#   https://grafana.com/docs/loki/latest/configuration/
+# 本文件定制项:
+# - path_prefix/chunks_directory/rules_directory 统一放在 /loki，匹配 compose volume 挂载
+# - from 使用 2024-01-01 作为本地示例起始日期
+# - allow_structured_metadata 开启是为了配合 Fluent Bit structured_metadata 输出
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+
+common:
+  path_prefix: /loki
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  allow_structured_metadata: true

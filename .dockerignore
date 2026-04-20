@@ -1,0 +1,11 @@
+.git
+.gradle
+.idea
+.kotlin
+.xcodemap
+%SystemDrive%
+build
+db
+logs
+tmp_nums.txt
+

@@ -237,7 +237,6 @@ class GlobalExceptionHandler() {
     val method = request?.method ?: "UNKNOWN"
     val path = request?.requestURI ?: "unknown"
     val clientIp = request?.let(HttpLogSupport::resolveClientIp) ?: "unknown"
-    val message = exception.message?.take(512) ?: exception.javaClass.simpleName
 
     loggingEvent
       .setCause(exception)
@@ -249,8 +248,6 @@ class GlobalExceptionHandler() {
       .addKeyValue("client.address", clientIp)
       .addKeyValue("user.id", HttpLogSupport.currentUserId())
       .addKeyValue("http.response.status_code", status)
-      .addKeyValue("error.type", exception.javaClass.simpleName)
-      .addKeyValue("error.message", message)
       .log("HTTP request failed")
   }
 }
